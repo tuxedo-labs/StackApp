@@ -3,10 +3,10 @@ name: Deploy Container
 on:
   push:
     branches:
-      - main  # Workflow ini hanya berjalan saat ada push ke cabang 'main'
+      - master  # Workflow ini hanya berjalan saat ada push ke cabang 'main'
   pull_request:
     branches:
-      - main  # Workflow ini berjalan saat ada pull request ke cabang 'main'
+      - master  # Workflow ini berjalan saat ada pull request ke cabang 'main'
 
 jobs:
   deploy:
