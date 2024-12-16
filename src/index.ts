@@ -6,6 +6,8 @@ import { ZodError } from "zod";
 const app = new Hono();
 
 app.route("/", authController);
+
+// init zod validation
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {
     c.status(err.status);
