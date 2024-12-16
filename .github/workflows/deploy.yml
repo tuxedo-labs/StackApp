@@ -1,0 +1,86 @@
+name: Deploy Container
+
+on:
+  push:
+    branches:
+      - main  # Workflow ini hanya berjalan saat ada push ke cabang 'main'
+  pull_request:
+    branches:
+      - main  # Workflow ini berjalan saat ada pull request ke cabang 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Menggunakan runner Ubuntu terbaru dari GitHub Actions
+
+    steps:
+      # Langkah 1: Checkout kode dari repositori
+      - name: Checkout code from repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2  # Menyertakan dua commit terakhir untuk meningkatkan kecepatan
+
+      # Langkah 2: Setup Bun.js
+      - name: Set up Bun.js environment
+        uses: oven-sh/setup-bun@v1  # Menggunakan GitHub Action untuk mengatur Bun.js
+        with:
+          bun-version: "latest"  # Menggunakan versi terbaru dari Bun.js
+
+      # Langkah 3: Install dependencies
+      - name: Install project dependencies with Bun
+        run: |
+          echo "Installing dependencies with Bun..."
+          bun install  # Menjalankan instalasi dependensi dengan Bun.js
+        continue-on-error: false  # Jika gagal, proses akan berhenti
+
+      # Langkah 4: Verify project setup (optional)
+      - name: Verify project setup
+        run: |
+          echo "Verifying the project setup..."
+          bun --version  # Memastikan Bun terinstal dan mengeluarkan versi yang benar
+          bun test --help  # Memeriksa apakah tes dapat dijalankan
+        continue-on-error: true  # Tidak menghentikan job jika langkah ini gagal, tetapi memberi informasi
+
+      # Langkah 5: Run unit tests
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          bun test src/test  # Menjalankan unit test yang terletak di folder /src/test
+        continue-on-error: true  # Jika ada kegagalan pada test, akan tetap lanjut ke langkah berikutnya
+
+      # Langkah 6: Simulate Build Step
+      - name: Simulate Build (Fake deploy step)
+        run: |
+          echo "Simulating build process..."
+          echo "Building the app (fake step)..."
+          sleep 3  # Simulasi proses build dengan delay
+          echo "Build process completed!"
+
+      # Langkah 7: Simulate Deployment
+      - name: Simulate Deployment (Fake deploy step)
+        run: |
+          echo "Simulating deploy to production..."
+          echo "Pretending to deploy the app to a production server..."
+          sleep 2  # Simulasi proses deployment dengan delay
+          echo "Deployment completed successfully!"
+
+      # Langkah 8: Notify deployment success
+      - name: Deployment success message
+        run: |
+          echo "Deployment has been simulated successfully."
+          echo "This is a fake deployment process, no changes have been made to production."
+
+      # Langkah 9: Cleanup (Optional)
+      - name: Cleanup (Optional)
+        run: |
+          echo "Cleaning up the environment after deployment..."
+          # Misalnya, menghapus file sementara, mengatur ulang status
+          sleep 1
+          echo "Cleanup completed!"
+
+      # Langkah 10: Final Notification
+      - name: Final Deployment Status
+        run: |
+          echo "🎉 Fake deployment finished successfully!"
+          echo "The application has been successfully simulated for deployment."
+          echo "You can now verify that the build and deployment steps would work correctly in production."
+
