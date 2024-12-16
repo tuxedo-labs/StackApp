@@ -1,15 +1,16 @@
-import { describe, it, expect, afterEach } from "bun:test";
+import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import app from "../../src";
 import { AuthTest } from "./test-utils";
+import { logger } from "../application/logging";
 
 describe("POST /api/auth/register", () => {
+  afterEach(async () => {
+    await AuthTest.delete();
+  });
+
   it("should reject registration if request is invalid", async () => {
-    AuthTest.delete()
     const response = await app.request("/api/auth/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         username: "",
         password: "",
@@ -17,6 +18,7 @@ describe("POST /api/auth/register", () => {
       }),
     });
     const body = await response.json();
+    logger.debug(body);
     expect(response.status).toBe(400);
     expect(body.errors).toBeDefined();
   });
@@ -24,9 +26,6 @@ describe("POST /api/auth/register", () => {
   it("should register user successfully", async () => {
     const response = await app.request("/api/auth/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         username: "example",
         password: "example",
@@ -34,6 +33,7 @@ describe("POST /api/auth/register", () => {
       }),
     });
     const body = await response.json();
+    logger.debug(body);
     expect(response.status).toBe(200);
     expect(body.data).toBeDefined();
     expect(body.data.username).toBe("example");
@@ -41,11 +41,10 @@ describe("POST /api/auth/register", () => {
   });
 
   it("should reject register new user if username already exists", async () => {
+    await AuthTest.create();
+
     const response = await app.request("/api/auth/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         username: "example",
         password: "example",
@@ -53,8 +52,45 @@ describe("POST /api/auth/register", () => {
       }),
     });
     const body = await response.json();
+    logger.debug(body);
     expect(response.status).toBe(400);
     expect(body.errors).toBeDefined();
   });
 });
 
+describe("POST /api/auth/login", () => {
+  beforeEach(async () => {
+    await AuthTest.create();
+  });
+
+  afterEach(async () => {
+    await AuthTest.delete();
+  });
+
+  it("should be able to login", async () => {
+    const response = await app.request("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        username: "example",
+        password: "example",
+      }),
+    });
+    const body = await response.json();
+    logger.debug(body);
+    expect(response.status).toBe(200);
+    expect(body.data).toBeDefined();
+  });
+  it("should be reject if username or password wrong!", async () => {
+    const response = await app.request("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        username: "test1",
+        password: "test1",
+      }),
+    });
+    const body = await response.json();
+    logger.debug(body);
+    expect(response.status).toBe(401);
+    expect(body.errors).toBeDefined();
+  });
+});
