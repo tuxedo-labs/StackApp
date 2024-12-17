@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { prismaClient } from "../application/database";
 import {
   LoginUserRequest,
